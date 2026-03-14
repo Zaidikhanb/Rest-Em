@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Employee Attendance with QR Scanner</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+    h1 { color: #333; }
+    .employee-list { max-width: 500px; margin: auto; }
+    .employee-card {
+      background: white; padding: 15px; margin: 10px 0; border-radius: 8px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .role-tag {
+      background: #007bff; color: white; padding: 3px 8px; border-radius: 12px;
+      font-size: 0.8em;
+    }
+    button {
+      padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;
+      font-weight: bold; margin-left: 5px;
+    }
+    .present { background: #28a745; color: white; }
+    .absent { background: #dc3545; color: white; }
+    .message { text-align: center; color: green; font-weight: bold; margin-top: 10px; }
+
+    /* QR scanner section */
+    .scanner-controls {
+      max-width: 500px;
+      margin: 20px auto;
+      text-align: center;
+    }
+    #qr-reader {
+      max-width: 500px;
+      margin: 10px auto;
+      border: 2px dashed #007bff;
+      border-radius: 8px;
+      overflow: hidden;
+      background: white;
+    }
+    #startScannerBtn, #stopScannerBtn {
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 5px;
+    }
+    #stopScannerBtn { background: #dc3545; }
+    #startScannerBtn:hover { background: #0056b3; }
+    #stopScannerBtn:hover { background: #b02a37; }
+  </style>
+  <!-- QR code scanning library (html5-qrcode) -->
+  <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+</head>
+<body>
+  <h1 style="text-align:center;">Mark Attendance</h1>
+
+  <!-- QR scanner section -->
+  <div class="scanner-controls">
+    <button id="startScannerBtn">📷 Scan QR to Mark Present</button>
+    <button id="stopScannerBtn" style="display:none;">⏹️ Stop Scanner</button>
+  </div>
+  <div id="qr-reader" style="width:100%; max-width:500px; margin:auto;"></div>
+
+  <!-- Employee list (manual marking) -->
+  <div id="employeeList" class="employee-list"></div>
+  <div id="message" class="message"></div>
+
+  <script>
+    // Global variable to store employee list for QR lookup
+    window.employees = [];
+
+    // Fetch employees from backend and render
+    async function fetchEmployees() {
+      try {
+        const res = await fetch('/api/employees');
+        const employees = await res.json();
+        window.employees = employees; // store for QR matching
+        const list = document.getElementById('employeeList');
+        list.innerHTML = employees.map(emp => `
+          <div class="employee-card">
+            <div>
+              <strong>${emp.name}</strong> 
+              <span class="role-tag">${emp.role}</span>
+            </div>
+            <div>
+              <button class="present" onclick="markAttendance('${emp._id}', 'present')">Present</button>
+              <button class="absent" onclick="markAttendance('${emp._id}', 'absent')">Absent</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Failed to fetch employees:', error);
+        document.getElementById('employeeList').innerHTML = '<p style="color:red; text-align:center;">Error loading employees.</p>';
+      }
+    }
+
+    // Mark attendance (used by both manual buttons and QR)
+    async function markAttendance(employeeId, status) {
+      try {
+        const res = await fetch('/api/attendance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ employeeId, status })
+        });
+        if (res.ok) {
+          document.getElementById('message').innerText = `✅ Marked ${status} successfully!`;
+          setTimeout(() => document.getElementById('message').innerText = '', 2000);
+        } else {
+          alert('Error marking attendance');
+        }
+      } catch (error) {
+        alert('Network error');
+      }
+    }
+
+    // ---------- QR Code Scanner Integration ----------
+    let scanner = null;
+    const qrReaderDiv = document.getElementById('qr-reader');
+    const startBtn = document.getElementById('startScannerBtn');
+    const stopBtn = document.getElementById('stopScannerBtn');
+
+    // Handle successful QR scan
+    function handleQrCode(decodedText) {
+      const trimmedName = decodedText.trim();
+      // Find employee by name (exact match, case-sensitive as per QR issued by admin)
+      const employee = window.employees.find(emp => emp.name === trimmedName);
+      
+      if (employee) {
+        markAttendance(employee._id, 'present');
+        // Optionally show which employee was marked
+        document.getElementById('message').innerText = `✅ Scanned: ${employee.name} (present)`;
+        setTimeout(() => document.getElementById('message').innerText = '', 2000);
+      } else {
+        alert(`❌ No employee found with name "${trimmedName}"`);
+      }
+    }
+
+    // Start scanner
+    startBtn.addEventListener('click', function() {
+      if (scanner) {
+        scanner.clear(); // clean up previous instance if any
+        qrReaderDiv.innerHTML = ''; // clear any old UI
+      }
+
+      // Create new scanner instance
+      scanner = new Html5QrcodeScanner(
+        "qr-reader", 
+        { 
+          fps: 10,        // frames per second
+          qrbox: 250,     // scanning box size
+          rememberLastUsedCamera: true
+        }
+      );
+
+      // Render scanner
+      scanner.render(
+        (decodedText, decodedResult) => {
+          // Success callback
+          handleQrCode(decodedText);
+          
+          // Stop scanner after first successful scan (optional, you can remove this if you want continuous scanning)
+          if (scanner) {
+            scanner.clear();
+            scanner = null;
+            qrReaderDiv.innerHTML = ''; // clean up UI
+            stopBtn.style.display = 'none';
+            startBtn.style.display = 'inline-block';
+          }
+        },
+        (errorMessage) => {
+          // Error callback - usually just scanning errors, we ignore to keep console clean
+          // console.debug(errorMessage);
+        }
+      );
+
+      // Toggle buttons
+      startBtn.style.display = 'none';
+      stopBtn.style.display = 'inline-block';
+    });
+
+    // Stop scanner manually
+    stopBtn.addEventListener('click', function() {
+      if (scanner) {
+        scanner.clear();
+        scanner = null;
+        qrReaderDiv.innerHTML = ''; // clear camera feed
+      }
+      startBtn.style.display = 'inline-block';
+      stopBtn.style.display = 'none';
+    });
+
+    // Initial load of employees
+    fetchEmployees();
+
+    // Ensure scanner stops if page unloads (optional cleanup)
+    window.addEventListener('beforeunload', function() {
+      if (scanner) {
+        scanner.clear();
+      }
+    });
+  </script>
+</body>
+</html>
