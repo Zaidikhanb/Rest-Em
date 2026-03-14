@@ -1,0 +1,9 @@
+project/
+├── api/
+│   └── index.js          # Express server (serverless function)
+├── public/
+│   ├── attendance.html   # Attendance marking app
+│   └── admin.html        # Admin dashboard
+├── package.json
+├── vercel.json
+└── .gitignore
