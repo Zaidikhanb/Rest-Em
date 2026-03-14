@@ -1,68 +1,386 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Employee Attendance</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zaiqa Mahal · Attendance</title>
+  <!-- Font Awesome 6 (free) for cool icons & logo -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
-    h1 { color: #333; }
-    .employee-list { max-width: 500px; margin: auto; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f9f3e8 0%, #fff3e0 100%);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* main card container for a lifted effect */
+    .app-container {
+      max-width: 650px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 40px 40px 30px 30px;
+      box-shadow: 0 25px 45px -12px rgba(100, 60, 10, 0.25), 0 2px 8px rgba(0,0,0,0.03);
+      padding: 2rem 1.8rem 2.5rem 1.8rem;
+      border: 1px solid rgba(255, 245, 235, 0.6);
+    }
+
+    /* header with logo + title */
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px dashed #e1b88c;
+    }
+
+    .logo-wrapper {
+      background: #c2693c;
+      background: linear-gradient(135deg, #b85e2a, #c2714a);
+      width: 58px;
+      height: 58px;
+      border-radius: 20px 8px 20px 8px; /* playful asymmetric */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 18px -8px rgba(180, 90, 30, 0.4);
+      transform: rotate(-1deg);
+      transition: transform 0.2s ease;
+    }
+
+    .logo-wrapper i {
+      font-size: 2.4rem;
+      color: #fef1e4;
+      filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1));
+      transform: rotate(2deg); /* counter the wrapper rotation */
+    }
+
+    .title-group {
+      flex: 1;
+    }
+
+    .title-group h1 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #4a2c1a;
+      line-height: 1.1;
+      text-shadow: 2px 2px 0 rgba(255, 215, 175, 0.5);
+    }
+
+    .title-group .subhead {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #996b48;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-group .subhead i {
+      font-size: 0.7rem;
+      color: #c2714a;
+    }
+
+    /* employee list grid */
+    .employee-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 28px 0 24px;
+    }
+
     .employee-card {
-      background: white; padding: 15px; margin: 10px 0; border-radius: 8px;
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      background: #ffffffd9;
+      backdrop-filter: blur(4px);
+      border: 1px solid #fadbc2;
+      border-radius: 30px 16px 30px 16px; /* organic shape */
+      padding: 1rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 18px -8px rgba(110, 70, 30, 0.12);
+      transition: all 0.25s ease;
     }
+
+    .employee-card:hover {
+      box-shadow: 0 18px 28px -10px #ab7a56;
+      transform: scale(1.01) translateY(-3px);
+      background: white;
+      border-color: #cf9e78;
+    }
+
+    .emp-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .emp-name {
+      font-size: 1.3rem;
+      font-weight: 650;
+      color: #3f2a16;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .emp-name i {
+      color: #b7693a;
+      font-size: 1.1rem;
+      opacity: 0.8;
+    }
+
     .role-tag {
-      background: #007bff; color: white; padding: 3px 8px; border-radius: 12px;
-      font-size: 0.8em;
+      background: #fbe9d2;
+      color: #8b542e;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: fit-content;
+      border: 1px solid #e6c8aa;
+      letter-spacing: 0.3px;
     }
+
+    .role-tag i {
+      font-size: 0.7rem;
+      color: #b7693a;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
     button {
-      padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;
-      font-weight: bold; margin-left: 5px;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.15s ease;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.04);
+      border: 1px solid transparent;
     }
-    .present { background: #28a745; color: white; }
-    .absent { background: #dc3545; color: white; }
-    .message { text-align: center; color: green; }
+
+    button i {
+      font-size: 1rem;
+    }
+
+    .present {
+      background: #e6f5e6;
+      color: #1f7840;
+      border-color: #b2ddb2;
+    }
+
+    .present:hover {
+      background: #2a8746;
+      color: white;
+      border-color: #1d6734;
+      box-shadow: 0 12px 18px -6px #509b6e;
+    }
+
+    .absent {
+      background: #ffe8e8;
+      color: #ba3f3f;
+      border-color: #f3bcbc;
+    }
+
+    .absent:hover {
+      background: #c23b3b;
+      color: white;
+      border-color: #982626;
+      box-shadow: 0 12px 18px -6px #c27c7c;
+    }
+
+    .message {
+      background: #d9e8d9;
+      color: #226622;
+      padding: 14px 20px;
+      border-radius: 60px;
+      font-weight: 500;
+      text-align: center;
+      margin: 16px 0 0;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: 1px solid #b1cfb1;
+      box-shadow: 0 6px 14px rgba(95, 131, 95, 0.2);
+      transition: all 0.3s;
+    }
+
+    .message i {
+      font-size: 1.2rem;
+      color: #2a7a2a;
+    }
+
+    /* empty state / subtle footer */
+    .kitchen-note {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.85rem;
+      color: #bc8f6b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .kitchen-note i {
+      background: #fad5b3;
+      padding: 5px;
+      border-radius: 50%;
+    }
+
+    /* responsiveness */
+    @media (max-width: 480px) {
+      .app-container { padding: 1.5rem 1rem; }
+      .brand-header { flex-wrap: wrap; }
+      .employee-card { flex-direction: column; align-items: flex-start; gap: 15px; }
+      .action-buttons { width: 100%; justify-content: flex-end; }
+      .title-group h1 { font-size: 1.8rem; }
+    }
   </style>
 </head>
 <body>
-  <h1 style="text-align:center;">Mark Attendance</h1>
-  <div id="employeeList" class="employee-list"></div>
-  <div id="message" class="message"></div>
+<div class="app-container">
+  <!-- logo + stylish header -->
+  <div class="brand-header">
+    <div class="logo-wrapper">
+      <i class="fas fa-utensils"></i> 
+      <!-- you can replace with your own logo image if needed: <img src="logo.png" width="42"> -->
+    </div>
+    <div class="title-group">
+      <h1>Zaiqa Mahal <span style="font-weight:300; color:#b56f43;">Attendance</span></h1>
+      <div class="subhead">
+        <i class="fas fa-circle"></i> 
+        <span>KITCHEN · SERVICE · STAFF</span>
+        <i class="fas fa-circle" style="margin-left:auto;"></i>
+      </div>
+    </div>
+    <!-- optional subtle icon on right -->
+    <i class="fas fa-mortar-pestle" style="color:#dbb594; font-size:1.6rem; opacity:0.5; margin-left:auto;"></i>
+  </div>
 
-  <script>
-    async function fetchEmployees() {
-      const res = await fetch('/api/employees');
-      const employees = await res.json();
-      const list = document.getElementById('employeeList');
-      list.innerHTML = employees.map(emp => `
-        <div class="employee-card">
-          <div>
-            <strong>${emp.name}</strong> 
-            <span class="role-tag">${emp.role}</span>
-          </div>
-          <div>
-            <button class="present" onclick="markAttendance('${emp._id}', 'present')">Present</button>
-            <button class="absent" onclick="markAttendance('${emp._id}', 'absent')">Absent</button>
-          </div>
-        </div>
-      `).join('');
+  <!-- employee list injected here -->
+  <div id="employeeList" class="employee-list">
+    <!-- dynamic cards appear here -->
+  </div>
+
+  <!-- success message area -->
+  <div id="message" class="message" style="display: none;"></div>
+  
+  <!-- decorative kitchen note (just for vibe) -->
+  <div class="kitchen-note">
+    <i class="fas fa-pepper-hot"></i>    <span>fresh · desi · zaika</span>    <i class="fas fa-mug-hot"></i>
+  </div>
+</div>
+
+<script>
+    // show message with icon and auto hide
+    function showMessage(text, isSuccess = true) {
+      const msgDiv = document.getElementById('message');
+      msgDiv.style.display = 'flex';
+      msgDiv.innerHTML = `<i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i> ${text}`;
+      msgDiv.style.background = isSuccess ? '#e1f0e1' : '#ffdfdf';
+      msgDiv.style.color = isSuccess ? '#1b5e1b' : '#aa3c3c';
+      setTimeout(() => {
+        msgDiv.style.display = 'none';
+      }, 2200);
     }
 
-    async function markAttendance(employeeId, status) {
-      const res = await fetch('/api/attendance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ employeeId, status })
-      });
-      if (res.ok) {
-        document.getElementById('message').innerText = `Marked ${status} successfully!`;
-        setTimeout(() => document.getElementById('message').innerText = '', 2000);
-      } else {
-        alert('Error marking attendance');
+    async function fetchEmployees() {
+      try {
+        const res = await fetch('/api/employees');
+        if (!res.ok) throw new Error('Failed to fetch');
+        const employees = await res.json();
+        const list = document.getElementById('employeeList');
+        if (!employees || employees.length === 0) {
+          list.innerHTML = `<div style="text-align:center; padding:30px; background: #ffeada; border-radius: 40px; color:#875a38;">
+            <i class="fas fa-users-slash" style="font-size:2rem;"></i><br>No employees found
+          </div>`;
+          return;
+        }
+        list.innerHTML = employees.map(emp => `
+          <div class="employee-card">
+            <div class="emp-info">
+              <span class="emp-name">
+                <i class="fas fa-user-chef"></i> ${emp.name}
+              </span>
+              <span class="role-tag">
+                <i class="fas fa-badge"></i> ${emp.role}
+              </span>
+            </div>
+            <div class="action-buttons">
+              <button class="present" onclick="markAttendance('${emp._id}', 'present')">
+                <i class="fas fa-check-circle"></i> Present
+              </button>
+              <button class="absent" onclick="markAttendance('${emp._id}', 'absent')">
+                <i class="fas fa-times-circle"></i> Absent
+              </button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        document.getElementById('employeeList').innerHTML = `
+          <div style="text-align:center; padding:25px; background:#ffe2d0; border-radius:30px;">
+            <i class="fas fa-exclamation-triangle" style="color:#b33;"></i> Could not load staff.
+          </div>
+        `;
       }
     }
 
+    async function markAttendance(employeeId, status) {
+      try {
+        const res = await fetch('/api/attendance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ employeeId, status })
+        });
+        if (res.ok) {
+          showMessage(`✓ ${status === 'present' ? 'Present' : 'Absent'} marked for staff`, true);
+        } else {
+          showMessage('✗ Error recording attendance', false);
+        }
+      } catch (error) {
+        showMessage('✗ Network error', false);
+      }
+    }
+
+    // initial load
     fetchEmployees();
-  </script>
+</script>
+
+<!-- ensure message is hidden initially -->
+<style>
+  #message { display: none; }
+</style>
 </body>
-  </html>
+</html>
