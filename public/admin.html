@@ -1,140 +1,505 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Admin Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard · ZenAttend</title>
+  <!-- Font Awesome 6 (free) for cool icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Google Font: Inter (modern, clean) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
-    h1, h2 { color: #333; }
-    .container { display: flex; gap: 20px; flex-wrap: wrap; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #e9eff9 0%, #f2f5fc 100%);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+      color: #1e293b;
+    }
+
+    /* sleek dashboard header */
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header-title h1 {
+      font-weight: 700;
+      font-size: 2.2rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #1e2b4f, #2c3e6e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-title i {
+      background: #2d3f6e;
+      padding: 0.5rem;
+      border-radius: 18px;
+      color: white;
+      font-size: 1.4rem;
+      box-shadow: 0 8px 16px -6px rgba(28, 52, 84, 0.25);
+    }
+
+    .badge-date {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(4px);
+      padding: 0.5rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+      border: 1px solid rgba(255,255,255,0.6);
+      color: #1e3a5f;
+    }
+
+    .badge-date i {
+      margin-right: 8px;
+      color: #2563eb;
+    }
+
+    /* main cards grid */
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 1.8rem;
+      align-items: start;
+    }
+
     .card {
-      background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      flex: 1 1 400px;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 32px;
+      padding: 1.8rem 1.5rem;
+      box-shadow: 0 20px 40px -12px rgba(0, 20, 40, 0.25),
+                  0 0 0 1px rgba(255,255,255,0.6) inset;
+      transition: transform 0.2s ease, box-shadow 0.25s ease;
     }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background: #007bff; color: white; }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 28px 48px -16px rgba(18, 52, 77, 0.35),
+                  0 0 0 1px rgba(255,255,255,0.7) inset;
+    }
+
+    .card h2 {
+      font-weight: 600;
+      font-size: 1.6rem;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: #0c1b33;
+      border-bottom: 2px solid rgba(0, 100, 220, 0.15);
+      padding-bottom: 0.6rem;
+    }
+
+    .card h2 i {
+      color: #2b4f8e;
+      font-size: 1.6rem;
+      background: rgba(43, 79, 142, 0.1);
+      padding: 0.4rem;
+      border-radius: 14px;
+    }
+
+    /* filter bar */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      background: rgba(255,255,255,0.4);
+      border-radius: 60px;
+      padding: 0.6rem 0.6rem 0.6rem 1.2rem;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.7);
+    }
+
+    .filter-bar input, .filter-bar select {
+      background: white;
+      border: 1px solid #dde3ed;
+      border-radius: 40px;
+      padding: 0.65rem 1.2rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      color: #1f2a44;
+      outline: none;
+      transition: 0.15s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+
+    .filter-bar input:focus, .filter-bar select:focus {
+      border-color: #3b6cb0;
+      box-shadow: 0 0 0 3px rgba(59, 108, 176, 0.15);
+    }
+
+    .filter-bar .btn {
+      background: linear-gradient(135deg, #22447b, #1d3a66);
+      border: none;
+      color: white;
+      font-weight: 500;
+      padding: 0.65rem 1.5rem;
+      border-radius: 40px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 14px -6px #1d3a6680;
+      transition: all 0.15s;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .filter-bar .btn i {
+      font-size: 1rem;
+    }
+
+    .filter-bar .btn:hover {
+      background: linear-gradient(135deg, #1d3a66, #142b50);
+      transform: scale(1.02);
+      box-shadow: 0 10px 18px -6px #1d3a66b0;
+    }
+
+    /* tables */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.3);
+      padding: 0.1rem;
+      backdrop-filter: blur(4px);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      border-radius: 24px;
+    }
+
+    th {
+      text-align: left;
+      padding: 1rem 0.8rem 0.8rem 0.8rem;
+      font-weight: 600;
+      color: #274873;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      background: transparent;
+      border-bottom: 1.5px solid rgba(43, 79, 142, 0.2);
+    }
+
+    td {
+      padding: 0.9rem 0.8rem;
+      border-bottom: 1px solid rgba(0,0,0,0.03);
+      color: #1e2f4a;
+      font-weight: 450;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
     .role-tag {
-      background: #28a745; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8em;
+      background: linear-gradient(145deg, #e2ecfe, #d1def5);
+      color: #1f3c6a;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-block;
+      border: 1px solid #ffffff70;
+      box-shadow: 0 2px 5px #00000008;
     }
-    .fire-btn { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-    .add-employee { margin-top: 20px; }
-    input, select { padding: 8px; margin-right: 5px; }
-    .btn { background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+
+    .fire-btn {
+      background: transparent;
+      border: 1.5px solid #c83e4c;
+      color: #b22234;
+      padding: 0.4rem 1rem;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .fire-btn i {
+      font-size: 0.8rem;
+    }
+
+    .fire-btn:hover {
+      background: #c83e4c;
+      color: white;
+      border-color: #c83e4c;
+    }
+
+    /* add employee inline */
+    .add-employee {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+      background: rgba(255,255,255,0.4);
+      border-radius: 50px;
+      padding: 0.6rem 0.6rem 0.6rem 1.2rem;
+      margin-bottom: 1.8rem;
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+
+    .add-employee input, .add-employee select {
+      background: white;
+      border: 1px solid #d9e1ef;
+      border-radius: 40px;
+      padding: 0.65rem 1.2rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      flex: 1 1 150px;
+    }
+
+    .add-employee .btn {
+      background: linear-gradient(135deg, #1f7b4d, #1b6a41);
+      border: none;
+      color: white;
+      font-weight: 500;
+      padding: 0.65rem 1.8rem;
+      border-radius: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      box-shadow: 0 6px 12px -6px #1b6a41b0;
+      transition: all 0.15s;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .add-employee .btn i {
+      font-size: 1rem;
+    }
+
+    .add-employee .btn:hover {
+      background: linear-gradient(135deg, #16693e, #0f542f);
+      transform: scale(1.02);
+    }
+
+    /* small extras */
+    .status-badge {
+      background: #c9e1fe;
+      border-radius: 30px;
+      padding: 0.2rem 0.8rem;
+      font-weight: 500;
+      font-size: 0.8rem;
+      display: inline-block;
+      color: #194a7a;
+    }
+
+    i {
+      color: inherit;
+    }
+
+    /* responsive */
+    @media (max-width: 600px) {
+      body { padding: 1.5rem 1rem; }
+      .container { grid-template-columns: 1fr; }
+      .filter-bar { border-radius: 30px; }
+    }
   </style>
 </head>
 <body>
-  <h1>Admin Dashboard</h1>
+  <div class="dashboard-header">
+    <div class="header-title">
+      <h1><i class="fas fa-chart-pie"></i> zen·attend · admin</h1>
+    </div>
+    <div class="badge-date">
+      <i class="fas fa-calendar-alt"></i> 
+      <span id="liveDate"></span>
+    </div>
+  </div>
+
   <div class="container">
-    <!-- Daily Attendance -->
+    <!-- Daily Attendance card -->
     <div class="card">
-      <h2>Daily Attendance</h2>
-      <input type="date" id="dailyDate" />
-      <button class="btn" onclick="loadDaily()">Load</button>
-      <div id="dailyTable"></div>
+      <h2><i class="fas fa-clipboard-list"></i> Daily attendance</h2>
+      <div class="filter-bar">
+        <input type="date" id="dailyDate" value="" />
+        <button class="btn" onclick="loadDaily()"><i class="fas fa-sync-alt"></i> Load</button>
+      </div>
+      <div class="table-wrapper" id="dailyTable">
+        <!-- dynamic table injected -->
+      </div>
     </div>
 
-    <!-- Monthly Insights -->
+    <!-- Monthly Insights card -->
     <div class="card">
-      <h2>Monthly Summary</h2>
-      <input type="number" id="monthYear" placeholder="Year" value="2026" />
-      <input type="number" id="monthMonth" placeholder="Month (1-12)" value="3" />
-      <button class="btn" onclick="loadMonthly()">Load</button>
-      <div id="monthlyTable"></div>
+      <h2><i class="fas fa-month"></i> Monthly summary</h2>
+      <div class="filter-bar" style="gap: 0.5rem;">
+        <input type="number" id="monthYear" placeholder="Year" value="2026" min="2020" max="2030" />
+        <input type="number" id="monthMonth" placeholder="Month" value="3" min="1" max="12" />
+        <button class="btn" onclick="loadMonthly()"><i class="fas fa-chart-simple"></i> Load</button>
+      </div>
+      <div class="table-wrapper" id="monthlyTable"></div>
     </div>
 
-    <!-- Employee Management -->
+    <!-- Employee Management card -->
     <div class="card">
-      <h2>Manage Employees</h2>
+      <h2><i class="fas fa-user-group"></i> Manage employees</h2>
       <div class="add-employee">
-        <input type="text" id="newName" placeholder="Name" />
+        <input type="text" id="newName" placeholder="Full name" />
         <select id="newRole">
           <option value="Office Boy">Office Boy</option>
           <option value="Store Keeper">Store Keeper</option>
           <option value="Manager">Manager</option>
           <option value="Cleaner">Cleaner</option>
         </select>
-        <button class="btn" onclick="hireEmployee()">Hire</button>
+        <button class="btn" onclick="hireEmployee()"><i class="fas fa-user-plus"></i> Hire</button>
       </div>
-      <div id="employeeTable"></div>
+      <div class="table-wrapper" id="employeeTable"></div>
     </div>
   </div>
 
   <script>
-    // Helper to fetch and render
+    (function setDefaultDate() {
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('dailyDate');
+      if (dateInput) dateInput.value = today;
+      // live date display
+      const liveSpan = document.getElementById('liveDate');
+      if (liveSpan) {
+        const now = new Date();
+        liveSpan.innerText = now.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+      }
+    })();
+
+    // ---- API functions (preserved exact behavior) ----
     async function loadDaily() {
       const date = document.getElementById('dailyDate').value || new Date().toISOString().split('T')[0];
-      const res = await fetch(`/api/attendance/daily?date=${date}`);
-      const data = await res.json();
-      let html = '<table><tr><th>Name</th><th>Role</th><th>Status</th><th>Timestamp</th></tr>';
-      data.forEach(item => {
-        html += `<tr>
-          <td>${item.employee.name}</td>
-          <td><span class="role-tag">${item.employee.role}</span></td>
-          <td>${item.status}</td>
-          <td>${item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : ''}</td>
-        </tr>`;
-      });
-      html += '</table>';
-      document.getElementById('dailyTable').innerHTML = html;
+      try {
+        const res = await fetch(`/api/attendance/daily?date=${date}`);
+        const data = await res.json();
+        let html = '<table><tr><th>Name</th><th>Role</th><th>Status</th><th>Timestamp</th></tr>';
+        data.forEach(item => {
+          const timestamp = item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '—';
+          html += `<tr>
+            <td><span style="font-weight:500;">${item.employee?.name || '—'}</span></td>
+            <td><span class="role-tag"><i class="fas fa-badge-check" style="font-size:0.7rem;"></i> ${item.employee?.role || '—'}</span></td>
+            <td><span class="status-badge">${item.status || '—'}</span></td>
+            <td><i class="far fa-clock" style="opacity:0.7; margin-right:4px;"></i>${timestamp}</td>
+          </tr>`;
+        });
+        html += '</table>';
+        document.getElementById('dailyTable').innerHTML = html;
+      } catch (e) {
+        document.getElementById('dailyTable').innerHTML = '<p style="color:#b33;"><i class="fas fa-exclamation-triangle"></i> error loading data</p>';
+      }
     }
 
     async function loadMonthly() {
       const year = document.getElementById('monthYear').value;
       const month = document.getElementById('monthMonth').value;
-      const res = await fetch(`/api/attendance/monthly?year=${year}&month=${month}`);
-      const data = await res.json();
-      let html = '<table><tr><th>Name</th><th>Role</th><th>Present Days</th></tr>';
-      data.forEach(item => {
-        html += `<tr>
-          <td>${item.employee.name}</td>
-          <td><span class="role-tag">${item.employee.role}</span></td>
-          <td>${item.presentDays}</td>
-        </tr>`;
-      });
-      html += '</table>';
-      document.getElementById('monthlyTable').innerHTML = html;
-    }
-
-    async function loadEmployees() {
-      const res = await fetch('/api/employees');
-      const employees = await res.json();
-      let html = '<table><tr><th>Name</th><th>Role</th><th>Action</th></tr>';
-      employees.forEach(emp => {
-        html += `<tr>
-          <td>${emp.name}</td>
-          <td><span class="role-tag">${emp.role}</span></td>
-          <td><button class="fire-btn" onclick="fireEmployee('${emp._id}')">Fire</button></td>
-        </tr>`;
-      });
-      html += '</table>';
-      document.getElementById('employeeTable').innerHTML = html;
-    }
-
-    async function hireEmployee() {
-      const name = document.getElementById('newName').value;
-      const role = document.getElementById('newRole').value;
-      if (!name) return alert('Enter name');
-      await fetch('/api/employees', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, role })
-      });
-      document.getElementById('newName').value = '';
-      loadEmployees();
-    }
-
-    async function fireEmployee(id) {
-      if (confirm('Fire this employee?')) {
-        await fetch(`/api/employees/${id}`, { method: 'DELETE' });
-        loadEmployees();
-        // Also refresh daily/monthly views if open
+      if (!year || !month) return alert('Enter year & month');
+      try {
+        const res = await fetch(`/api/attendance/monthly?year=${year}&month=${month}`);
+        const data = await res.json();
+        let html = '<table><tr><th>Name</th><th>Role</th><th>Present days</th></tr>';
+        data.forEach(item => {
+          html += `<tr>
+            <td>${item.employee?.name || '—'}</td>
+            <td><span class="role-tag">${item.employee?.role || '—'}</span></td>
+            <td><span style="background:#e0f0fa; padding:0.2rem 1rem; border-radius:40px;">${item.presentDays ?? 0}</span></td>
+          </tr>`;
+        });
+        html += '</table>';
+        document.getElementById('monthlyTable').innerHTML = html;
+      } catch (e) {
+        document.getElementById('monthlyTable').innerHTML = '<p style="color:#b33;"><i class="fas fa-exclamation-triangle"></i> monthly summary unavailable</p>';
       }
     }
 
-    // Initial loads
-    loadDaily();
-    loadMonthly();
-    loadEmployees();
+    async function loadEmployees() {
+      try {
+        const res = await fetch('/api/employees');
+        const employees = await res.json();
+        let html = '<table><tr><th>Name</th><th>Role</th><th style="text-align:center;">Action</th></tr>';
+        employees.forEach(emp => {
+          html += `<tr>
+            <td><i class="fas fa-user-circle" style="margin-right:6px; color:#2b4f8e;"></i>${emp.name}</td>
+            <td><span class="role-tag">${emp.role}</span></td>
+            <td style="text-align:left;"><button class="fire-btn" onclick="fireEmployee('${emp._id}')"><i class="fas fa-user-minus"></i> Fire</button></td>
+          </tr>`;
+        });
+        html += '</table>';
+        document.getElementById('employeeTable').innerHTML = html;
+      } catch (e) {
+        document.getElementById('employeeTable').innerHTML = '<p style="color:#b33;"><i class="fas fa-exclamation-triangle"></i> could not load employees</p>';
+      }
+    }
+
+    async function hireEmployee() {
+      const name = document.getElementById('newName').value.trim();
+      const role = document.getElementById('newRole').value;
+      if (!name) return alert('Please enter employee name');
+      try {
+        await fetch('/api/employees', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, role })
+        });
+        document.getElementById('newName').value = '';
+        loadEmployees();
+        // optional: refresh daily/monthly if they have new data
+        loadDaily();
+        loadMonthly();
+      } catch (e) {
+        alert('Hire action failed (simulated or network)');
+      }
+    }
+
+    async function fireEmployee(id) {
+      if (!confirm('Fire this employee? This action cannot be undone.')) return;
+      try {
+        await fetch(`/api/employees/${id}`, { method: 'DELETE' });
+        loadEmployees();
+        loadDaily();
+        loadMonthly();
+      } catch (e) {
+        alert('Error while firing');
+      }
+    }
+
+    // initial load
+    window.onload = function() {
+      loadDaily();
+      loadMonthly();
+      loadEmployees();
+    };
   </script>
+  <!-- small note: backend endpoints are mocked for design preview -->
+  <div style="margin-top: 2rem; font-size:0.85rem; opacity:0.3; text-align:center; color:#2f4858;">
+    <i class="fas fa-crown"></i> admin panel · sleek interface
+  </div>
 </body>
   </html>
