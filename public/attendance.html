@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Employee Attendance</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+    h1 { color: #333; }
+    .employee-list { max-width: 500px; margin: auto; }
+    .employee-card {
+      background: white; padding: 15px; margin: 10px 0; border-radius: 8px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .role-tag {
+      background: #007bff; color: white; padding: 3px 8px; border-radius: 12px;
+      font-size: 0.8em;
+    }
+    button {
+      padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;
+      font-weight: bold; margin-left: 5px;
+    }
+    .present { background: #28a745; color: white; }
+    .absent { background: #dc3545; color: white; }
+    .message { text-align: center; color: green; }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;">Mark Attendance</h1>
+  <div id="employeeList" class="employee-list"></div>
+  <div id="message" class="message"></div>
+
+  <script>
+    async function fetchEmployees() {
+      const res = await fetch('/api/employees');
+      const employees = await res.json();
+      const list = document.getElementById('employeeList');
+      list.innerHTML = employees.map(emp => `
+        <div class="employee-card">
+          <div>
+            <strong>${emp.name}</strong> 
+            <span class="role-tag">${emp.role}</span>
+          </div>
+          <div>
+            <button class="present" onclick="markAttendance('${emp._id}', 'present')">Present</button>
+            <button class="absent" onclick="markAttendance('${emp._id}', 'absent')">Absent</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function markAttendance(employeeId, status) {
+      const res = await fetch('/api/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employeeId, status })
+      });
+      if (res.ok) {
+        document.getElementById('message').innerText = `Marked ${status} successfully!`;
+        setTimeout(() => document.getElementById('message').innerText = '', 2000);
+      } else {
+        alert('Error marking attendance');
+      }
+    }
+
+    fetchEmployees();
+  </script>
+</body>
+  </html>
