@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+    h1, h2 { color: #333; }
+    .container { display: flex; gap: 20px; flex-wrap: wrap; }
+    .card {
+      background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      flex: 1 1 400px;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #007bff; color: white; }
+    .role-tag {
+      background: #28a745; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8em;
+    }
+    .fire-btn { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+    .add-employee { margin-top: 20px; }
+    input, select { padding: 8px; margin-right: 5px; }
+    .btn { background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Admin Dashboard</h1>
+  <div class="container">
+    <!-- Daily Attendance -->
+    <div class="card">
+      <h2>Daily Attendance</h2>
+      <input type="date" id="dailyDate" />
+      <button class="btn" onclick="loadDaily()">Load</button>
+      <div id="dailyTable"></div>
+    </div>
+
+    <!-- Monthly Insights -->
+    <div class="card">
+      <h2>Monthly Summary</h2>
+      <input type="number" id="monthYear" placeholder="Year" value="2026" />
+      <input type="number" id="monthMonth" placeholder="Month (1-12)" value="3" />
+      <button class="btn" onclick="loadMonthly()">Load</button>
+      <div id="monthlyTable"></div>
+    </div>
+
+    <!-- Employee Management -->
+    <div class="card">
+      <h2>Manage Employees</h2>
+      <div class="add-employee">
+        <input type="text" id="newName" placeholder="Name" />
+        <select id="newRole">
+          <option value="Office Boy">Office Boy</option>
+          <option value="Store Keeper">Store Keeper</option>
+          <option value="Manager">Manager</option>
+          <option value="Cleaner">Cleaner</option>
+        </select>
+        <button class="btn" onclick="hireEmployee()">Hire</button>
+      </div>
+      <div id="employeeTable"></div>
+    </div>
+  </div>
+
+  <script>
+    // Helper to fetch and render
+    async function loadDaily() {
+      const date = document.getElementById('dailyDate').value || new Date().toISOString().split('T')[0];
+      const res = await fetch(`/api/attendance/daily?date=${date}`);
+      const data = await res.json();
+      let html = '<table><tr><th>Name</th><th>Role</th><th>Status</th><th>Timestamp</th></tr>';
+      data.forEach(item => {
+        html += `<tr>
+          <td>${item.employee.name}</td>
+          <td><span class="role-tag">${item.employee.role}</span></td>
+          <td>${item.status}</td>
+          <td>${item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : ''}</td>
+        </tr>`;
+      });
+      html += '</table>';
+      document.getElementById('dailyTable').innerHTML = html;
+    }
+
+    async function loadMonthly() {
+      const year = document.getElementById('monthYear').value;
+      const month = document.getElementById('monthMonth').value;
+      const res = await fetch(`/api/attendance/monthly?year=${year}&month=${month}`);
+      const data = await res.json();
+      let html = '<table><tr><th>Name</th><th>Role</th><th>Present Days</th></tr>';
+      data.forEach(item => {
+        html += `<tr>
+          <td>${item.employee.name}</td>
+          <td><span class="role-tag">${item.employee.role}</span></td>
+          <td>${item.presentDays}</td>
+        </tr>`;
+      });
+      html += '</table>';
+      document.getElementById('monthlyTable').innerHTML = html;
+    }
+
+    async function loadEmployees() {
+      const res = await fetch('/api/employees');
+      const employees = await res.json();
+      let html = '<table><tr><th>Name</th><th>Role</th><th>Action</th></tr>';
+      employees.forEach(emp => {
+        html += `<tr>
+          <td>${emp.name}</td>
+          <td><span class="role-tag">${emp.role}</span></td>
+          <td><button class="fire-btn" onclick="fireEmployee('${emp._id}')">Fire</button></td>
+        </tr>`;
+      });
+      html += '</table>';
+      document.getElementById('employeeTable').innerHTML = html;
+    }
+
+    async function hireEmployee() {
+      const name = document.getElementById('newName').value;
+      const role = document.getElementById('newRole').value;
+      if (!name) return alert('Enter name');
+      await fetch('/api/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, role })
+      });
+      document.getElementById('newName').value = '';
+      loadEmployees();
+    }
+
+    async function fireEmployee(id) {
+      if (confirm('Fire this employee?')) {
+        await fetch(`/api/employees/${id}`, { method: 'DELETE' });
+        loadEmployees();
+        // Also refresh daily/monthly views if open
+      }
+    }
+
+    // Initial loads
+    loadDaily();
+    loadMonthly();
+    loadEmployees();
+  </script>
+</body>
+  </html>
